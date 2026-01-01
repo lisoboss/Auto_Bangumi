@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 class RequestURL:
     def __init__(self):
         self.header = {"user-agent": "Mozilla/5.0", "Accept": "application/xml"}
-        self._socks5_proxy = False
 
     def get_url(self, url, retry=3):
         try_time = 0
@@ -86,39 +85,20 @@ class RequestURL:
     def __enter__(self):
         self.session = requests.Session()
         if settings.proxy.enable:
-            if "http" in settings.proxy.type:
-                if settings.proxy.username:
-                    username=settings.proxy.username
-                    password=settings.proxy.password
-                    url = f"http://{username}:{password}@{settings.proxy.host}:{settings.proxy.port}"
-                    self.session.proxies = {
-                        "http": url,
-                        "https": url,
-                    }
-                else:
-                    url = f"http://{settings.proxy.host}:{settings.proxy.port}"
-                    self.session.proxies = {
-                        "http": url,
-                        "https": url,
-                    }
-            elif settings.proxy.type == "socks5":
-                self._socks5_proxy = True
-                socks.set_default_proxy(
-                    socks.SOCKS5,
-                    addr=settings.proxy.host,
-                    port=settings.proxy.port,
-                    rdns=True,
-                    username=settings.proxy.username,
-                    password=settings.proxy.password,
-                )
-                socket.socket = socks.socksocket
+            protocol = settings.proxy.type
+            if protocol in ("http", "https", "socks5", "socks5h"):
+                username = settings.proxy.username
+                password = settings.proxy.password
+                auth = f"{username}:{password}@" if username else ""
+                addr = f"{settings.proxy.host}:{settings.proxy.port}"
+                url = f"{protocol}://{auth}{addr}"
+                self.session.proxies = {
+                    "http": url,
+                    "https": url,
+                }
             else:
-                logger.error(f"[Network] Unsupported proxy type: {settings.proxy.type}")
+                logger.error(f"[Network] Unsupported proxy type: {protocol}")
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if self._socks5_proxy:
-            socks.set_default_proxy()
-            socket.socket = socks.socksocket
-            self._socks5_proxy = False
         self.session.close()

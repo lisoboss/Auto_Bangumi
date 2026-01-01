@@ -6,7 +6,7 @@ const { t } = useMyI18n();
 const { getSettingGroup } = useConfigStore();
 
 const proxy = getSettingGroup('proxy');
-const proxyType: ProxyType = ['http', 'https', 'socks5'];
+const proxyType: ProxyType = ['http', 'https', 'socks5', 'socks5h'];
 
 const items: SettingItem<Proxy>[] = [
   {
