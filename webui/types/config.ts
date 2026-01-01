@@ -11,7 +11,7 @@ export type RssParserLang = ['zh', 'en', 'jp'];
 /** 重命名方式 */
 export type RenameMethod = ['normal', 'pn', 'advance', 'none'];
 /** 代理类型 */
-export type ProxyType = ['http', 'https', 'socks5'];
+export type ProxyType = ['http', 'https', 'socks5', 'socks5h'];
 /** 通知类型 */
 export type NotificationType = ['telegram', 'server-chan', 'bark', 'wecom'];
 /** OpenAI Model List */
